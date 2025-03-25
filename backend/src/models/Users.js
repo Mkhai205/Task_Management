@@ -25,6 +25,24 @@ const Users = sequelize.define('Users', {
     },
     image_url: {
         type: DataTypes.TEXT,
+        allowNull: true,
+        validate: {
+            isUrl: true // Đảm bảo giá trị là URL hợp lệ
+        }
+    },
+    image_path: {
+        type: DataTypes.TEXT,
+        allowNull: true,
+        validate: {
+            isUrl: true // Đảm bảo giá trị là URL hợp lệ
+        }
+    },
+    refresh_token: {
+        type: DataTypes.TEXT,
+        allowNull: true
+    },
+    refresh_exprired: {
+        type: DataTypes.DATE,
         allowNull: true
     },
     delete_at: {

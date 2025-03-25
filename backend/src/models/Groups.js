@@ -16,7 +16,7 @@ const Groups = sequelize.define('Groups', {
         type: DataTypes.TEXT,
         allowNull: true
     },
-    owner_id: {
+    created_by: {
         type: DataTypes.INTEGER,
         references: {
             model: Users,
@@ -34,6 +34,6 @@ const Groups = sequelize.define('Groups', {
 });
 
 // Thiết lập quan hệ với User
-Groups.belongsTo(Users, { foreignKey: 'owner_id', onDelete: 'CASCADE' });
+Groups.belongsTo(Users, { foreignKey: 'created_by', onDelete: 'CASCADE' });
 
 export default Groups;

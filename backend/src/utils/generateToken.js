@@ -1,9 +1,7 @@
 import jwt from "jsonwebtoken";
-import dotenv from "dotenv";
+import "dotenv/config";
 
-dotenv.config();
-
-const SECRET_KEY = process.env.JWT_SECRET || "your-secret-key";
+const SECRET_KEY = process.env.JWT_SECRET;
 
 /**
  * Tạo token JWT
@@ -11,8 +9,8 @@ const SECRET_KEY = process.env.JWT_SECRET || "your-secret-key";
  * @param {string} expiresIn - Thời gian hết hạn (mặc định: "7d")
  * @returns {string} - Token JWT
  */
-export const generateToken = (payload, expiresIn = "7d") => {
-  return jwt.sign(payload, SECRET_KEY, { expiresIn });
+const generateToken = (payload, expiresIn = "48h") => {
+    return jwt.sign(payload, SECRET_KEY, { expiresIn });
 };
 
 /**
@@ -20,15 +18,12 @@ export const generateToken = (payload, expiresIn = "7d") => {
  * @param {string} token - Token cần xác thực
  * @returns {Object | null} - Giải mã payload nếu hợp lệ, ngược lại null
  */
-export const verifyToken = (token) => {
-  try {
-    return jwt.verify(token, SECRET_KEY);
-  } catch (error) {
-    return null;
-  }
+const verifyToken = (token) => {
+    try {
+        return jwt.verify(token, SECRET_KEY);
+    } catch (error) {
+        return null;
+    }
 };
 
-export {
-    generateToken,
-    verifyToken
-}
+export { generateToken, verifyToken };

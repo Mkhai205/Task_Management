@@ -1,38 +1,99 @@
-import Users from "../models/Users.js";
-import { hashPassword, comparePassword } from "../utils/hashPassword.js";
-import { generateToken, verifyToken } from "../utils/generateToken.js";
+import { Users } from "../models/indexModels.js";
+import { sendResponse } from "../utils/responseHelper.js";
 
-const register = async (req, res) => {
+const getUserProfile = async (req, res) => {
     try {
-        const { username, email, password } = req.body;
-        const hashedPassword = await hashPassword(password);
-        const user = await Users.create({ username, email, password: hashedPassword });
+        const user = await Users.findByPk(req.user.id, {
+            attributes: { exclude: ["password"] },
+        });
 
-        res.status(201).json({ message: "User created", user });
+        if (!user) {
+            return sendResponse(res, 404, false, "User not found");
+        }
+
+        return sendResponse(res, 200, true, "User profile retrieved", user);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        return sendResponse(res, 500, false, error.message);
     }
 };
 
-const login = async (req, res) => {
+const updateUserProfile = async (req, res) => {
     try {
-        const { email, password } = req.body;
-        const user = await Users.findOne({ where: { email } });
+        const { name, email } = req.body;
+        const user = await Users.findByPk(req.user.id);
 
-        if (!user) return res.status(404).json({ error: "User not found" });
+        if (!user) {
+            return sendResponse(res, 404, false, "User not found");
+        }
 
-        const validPassword = await comparePassword(password, user.password);
-        if (!validPassword) return res.status(401).json({ error: "Invalid credentials" });
+        user.name = name || user.name;
+        user.email = email || user.email;
 
-        const token = generateToken({ id: user.id, email: user.email });
+        await user.save();
 
-        return res.status(200).json({ message: "Login successful", token });
+        return sendResponse(res, 200, true, "Profile updated", {
+            id: user.id,
+            name: user.name,
+            email: user.email,
+        });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        return sendResponse(res, 500, false, error.message);
     }
 };
 
-export {
-    register,
-    login
-}
+const changePassword = async (req, res) => {
+    try {
+        const { oldPassword, newPassword } = req.body;
+        const user = await Users.findByPk(req.user.id);
+
+        if (!user) {
+            return sendResponse(res, 404, false, "User not found");
+        }
+
+        const validPassword = await comparePassword(oldPassword, user.password);
+        if (!validPassword) {
+            return sendResponse(res, 401, false, "Old password is incorrect");
+        }
+
+        user.password = await hashPassword(newPassword);
+        await user.save();
+
+        return sendResponse(res, 200, true, "Password changed successfully");
+    } catch (error) {
+        return sendResponse(res, 500, false, error.message);
+    }
+};
+
+const deleteUser = async (req, res) => {
+    try {
+        const user = await Users.findByPk(req.user.id);
+
+        if (!user) {
+            return sendResponse(res, 404, false, "User not found");
+        }
+
+        await user.destroy();
+
+        return sendResponse(res, 200, true, "User deleted successfully");
+    } catch (error) {
+        return sendResponse(res, 500, false, error.message);
+    }
+};
+
+const getAllUsers = async (req, res) => {
+    try {
+        if (!req.user.isAdmin) {
+            return sendResponse(res, 403, false, "Access denied");
+        }
+
+        const users = await Users.findAll({
+            attributes: { exclude: ["password", "refresh_token", "refresh_exprired"] },
+        });
+
+        return sendResponse(res, 200, true, "Users retrieved", users);
+    } catch (error) {
+        return sendResponse(res, 500, false, error.message);
+    }
+};
+
+export { getUserProfile, updateUserProfile, changePassword, deleteUser, getAllUsers };

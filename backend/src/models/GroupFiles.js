@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../config/db.js';
-import Users from './Users.js';
 import Groups from './Groups.js';
+import GroupMembers from './GroupMembers.js';
 
 const GroupFiles = sequelize.define('GroupFiles', {
     id: {
@@ -18,18 +18,21 @@ const GroupFiles = sequelize.define('GroupFiles', {
         allowNull: false,
         onDelete: 'CASCADE' // Xóa file nếu group bị xóa
     },
-    uploader_id: {
+    uploaded_by: {
         type: DataTypes.INTEGER,
         references: {
-            model: Users,
+            model: GroupMembers,
             key: 'id'
         },
         allowNull: true,
         onDelete: 'SET NULL' // Nếu user bị xóa, file vẫn tồn tại nhưng không có uploader
     },
     file_url: {
-        type: DataTypes.STRING(255),
-        allowNull: false
+        type: DataTypes.TEXT,
+        allowNull: false,
+        validate: {
+            isUrl: true // Đảm bảo giá trị là URL hợp lệ
+        }
     },
     file_path: {
         type: DataTypes.TEXT,
@@ -37,6 +40,10 @@ const GroupFiles = sequelize.define('GroupFiles', {
         validate: {
             isUrl: true // Đảm bảo giá trị là URL hợp lệ
         }
+    },
+    file_name: {
+        type: DataTypes.STRING(255),
+        allowNull: false
     },
     upload_at: {
         type: DataTypes.DATE,
@@ -48,7 +55,7 @@ const GroupFiles = sequelize.define('GroupFiles', {
 });
 
 // Thiết lập quan hệ
-GroupFiles.belongsTo(Groups, { foreignKey: 'group_id', as: 'group', onDelete: 'CASCADE' });
-GroupFiles.belongsTo(Users, { foreignKey: 'uploader_id', as: 'uploader', onDelete: 'SET NULL' });
+GroupFiles.belongsTo(Groups, { foreignKey: 'group_id', onDelete: 'CASCADE' });
+GroupFiles.belongsTo(GroupMembers, { foreignKey: 'uploaded_by', onDelete: 'SET NULL' });
 
 export default GroupFiles;

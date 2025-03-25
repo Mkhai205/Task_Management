@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../config/db.js';
 import Tasks from './Tasks.js';
-import Users from './Users.js';
+import GroupMembers from './GroupMembers.js';
 
 const Comments = sequelize.define('Comments', {
     id: {
@@ -18,10 +18,10 @@ const Comments = sequelize.define('Comments', {
         allowNull: false,
         onDelete: 'CASCADE' // Xóa comment nếu task bị xóa
     },
-    user_id: {
+    member_id: {
         type: DataTypes.INTEGER,
         references: {
-            model: Users,
+            model: GroupMembers,
             key: 'id'
         },
         allowNull: false,
@@ -41,7 +41,7 @@ const Comments = sequelize.define('Comments', {
 });
 
 // Thiết lập quan hệ
-Comments.belongsTo(Tasks, { foreignKey: 'task_id', as: 'task', onDelete: 'CASCADE' });
-Comments.belongsTo(Users, { foreignKey: 'user_id', as: 'user', onDelete: 'CASCADE' });
+Comments.belongsTo(Tasks, { foreignKey: 'task_id', onDelete: 'CASCADE' });
+Comments.belongsTo(GroupMembers, { foreignKey: 'member_id', onDelete: 'CASCADE' });
 
 export default Comments;

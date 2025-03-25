@@ -35,6 +35,6 @@ const CheckLists = sequelize.define('Checklists', {
 });
 
 // Thiết lập quan hệ
-CheckLists.belongsTo(Tasks, { foreignKey: 'task_id', as: 'task', onDelete: 'CASCADE' });
+CheckLists.belongsTo(Tasks, { foreignKey: 'task_id', onDelete: 'CASCADE' });
 
 export default CheckLists;

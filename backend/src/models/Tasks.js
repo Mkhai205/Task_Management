@@ -1,7 +1,7 @@
 import { DataTypes } from 'sequelize';
 import sequelize from '../config/db.js';
+import GroupMembers from './GroupMembers.js';
 import Users from './Users.js';
-import Groups from './Groups.js';
 
 const Tasks = sequelize.define('Tasks', {
     id: {
@@ -9,21 +9,13 @@ const Tasks = sequelize.define('Tasks', {
         primaryKey: true,
         autoIncrement: true
     },
-    owner_id: {
+    created_by: {
         type: DataTypes.INTEGER,
         references: {
-            model: Users,
+            model: GroupMembers,
             key: 'id'
         },
         onDelete: 'CASCADE' // Khi user bị xóa, task do họ tạo cũng bị xóa
-    },
-    group_id: {
-        type: DataTypes.INTEGER,
-        references: {
-            model: Groups,
-            key: 'id'
-        },
-        onDelete: 'CASCADE' // Khi group bị xóa, task trong group cũng bị xóa
     },
     title: {
         type: DataTypes.STRING(255),
@@ -59,8 +51,7 @@ const Tasks = sequelize.define('Tasks', {
 });
 
 // Thiết lập quan hệ
-Tasks.belongsTo(Users, { foreignKey: 'owner_id', as: 'owner', onDelete: 'CASCADE' });
-Tasks.belongsTo(Groups, { foreignKey: 'group_id', as: 'group', onDelete: 'CASCADE' });
-Tasks.belongsTo(Users, { foreignKey: 'assigned_to', as: 'assignee', onDelete: 'SET NULL' });
+Tasks.belongsTo(GroupMembers, { foreignKey: 'created_by', onDelete: 'CASCADE' });
+Tasks.belongsTo(Users, { foreignKey: 'assigned_to', onDelete: 'SET NULL' });
 
 export default Tasks;
