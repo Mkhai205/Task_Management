@@ -1,0 +1,18 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres
+    container_name: task_manager_postgres
+    environment:
+      POSTGRES_USER: manhkhai
+      POSTGRES_PASSWORD: 123123
+      POSTGRES_DB: task_manager
+    ports:
+      - "5434:5432"
+    restart: unless-stopped
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+
+volumes:
+  pg_data:

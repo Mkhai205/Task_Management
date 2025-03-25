@@ -1,0 +1,1 @@
+// Kiểm tra JWT, quyền truy cập
